@@ -1,0 +1,9 @@
+{% for article in articles %}
+    <h3>
+        <a href="/articles/{{ article.id }}">{{ article.title }}</a>
+        <a href="/articles/{{ article.id }}/edit">Edit</a>
+        <form method="POST" action="/articles/{{ article.id }}/delete" onsubmit="return confirm('Are you sure you want to delete this article?')">
+            <button type="submit">Delete</button>
+        </form>
+    </h3>
+{% endfor %}

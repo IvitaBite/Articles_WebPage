@@ -1,0 +1,14 @@
+edit {{ article.title }}new article
+<form method="POST" action="/articles/{{ article.id }}">
+    <div>
+        <label for="title">Title: </label>
+        <input id="title" type="text" name="title" value="{{ article.title }}" required/>
+    </div>
+    <div>
+        <label for="description">Description: </label> <br/>
+        <textarea id="description" name="description" rows="5" cols="15"  required>{{ article.description }}</textarea>
+    </div>
+    <div>
+        <button type="submit">Update</button>
+    </div>
+</form>
