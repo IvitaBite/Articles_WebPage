@@ -177,7 +177,6 @@ class ArticleController extends DatabaseController
         if (!$articleData) {
             $_SESSION['flush']['error'][] = 'Article not found.';
             return new RedirectResponse('/articles');
-
         }
 
         $title = $_POST['title'];
