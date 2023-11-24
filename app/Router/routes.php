@@ -9,5 +9,5 @@ return [
     ['GET', '/articles/{id}', [ArticleController::class, 'show']],
     ['GET', '/articles/{id}/edit', [ArticleController::class, 'edit']],
     ['POST', '/articles/{id}', [ArticleController::class, 'update']],
-    ['POST', '/articles/{id}/delete', [ArticleController::class, 'delete']],
+    ['POST', '/articles/{id}/delete', [ArticleController::class, 'delete']]
 ];

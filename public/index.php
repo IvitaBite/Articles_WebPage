@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+session_start();
+
 use App\Response\ViewResponse;
 use App\Response\RedirectResponse;
 use App\Router\Router;
@@ -9,16 +11,30 @@ use Twig\Loader\FilesystemLoader;
 use Twig\Environment;
 use Dotenv\Dotenv;
 use Twig\Extension\DebugExtension;
-use Carbon\Carbon;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-$loader = new FilesystemLoader(__DIR__ . '/../views'); // todo: '/' pirmais ???
+$loader = new FilesystemLoader(__DIR__ . '/../views');
 $twig = new Environment($loader);
 
-$twig->addGlobal('dayTime', new Carbon());
+if (isset($_SESSION['flush'])) {
+    $flashMessages = [];
+    foreach ($_SESSION['flush'] as $messageType => $messages) {
+        foreach ($messages as $message) {
+            $flashMessages[] = [
+                'type' => $messageType,
+                'message' => $message,
+            ];
+        }
+    }
+    $twig->addGlobal('flash_messages', $flashMessages);
+    unset($_SESSION['flush']);
+}
 
 $twig->addExtension(new DebugExtension());
+
+$dotenv = Dotenv::createImmutable(__DIR__ . '/../');
+$dotenv->load();
 
 $routeInfo = Router::dispatch();
 
@@ -38,8 +54,7 @@ switch ($routeInfo[0]) {
 
         $response = (new $controller)->{$method}(...array_values($vars));
 
-        switch (true)
-        {
+        switch (true) {
             case $response instanceof ViewResponse:
                 echo $twig->render($response->getViewName() . '.twig', $response->getData());
                 break;
@@ -47,14 +62,6 @@ switch ($routeInfo[0]) {
                 header('Location: ' . $response->getLocation());
                 break;
             default:
-                //throw new exception, ko nesaportjam
                 break;
         }
-
-
-/*       if ($response instanceof Response) {
-            /** @var Response $response */
-/*            echo $twig->render($response->getViewName() . '.twig', $response->getData());
-        }
-        break;*/
 }

@@ -9,17 +9,18 @@ use App\Models\Article;
 class ArticleCollection
 {
     private array $articles;
+
     public function __construct(array $articles = [])
     {
         foreach ($articles as $article) {
-            if (! $article instanceof Article) {
+            if (!$article instanceof Article) {
                 continue;
             }
             $this->add($article);
         }
     }
 
-    public function add(Article  $article): void
+    public function add(Article $article): void
     {
         $this->articles[] = $article;
     }

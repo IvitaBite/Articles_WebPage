@@ -1,14 +1,32 @@
-edit {{ article.title }}new article
-<form method="POST" action="/articles/{{ article.id }}">
-    <div>
-        <label for="title">Title: </label>
-        <input id="title" type="text" name="title" value="{{ article.title }}" required/>
+{% include 'Partials/head.twig' %}
+{% include 'Partials/navbar.twig' %}
+<div class="container">
+    <div class="row">
+        <div class="col-md">
+            <div class="box">
+                <h1>Edit: {{ article.title }}</h1>
+                <form method="POST" action="/articles/{{ article.id }}">
+                    <div class="mb-3">
+                        <label for="title" class="form-label">Title:</label>
+                        <input id="title" type="text" name="title" value="{{ article.title }}" class="form-control"
+                               required/>
+                    </div>
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description:</label>
+                        <textarea id="description" name="description" rows="5" class="form-control"
+                                  required>{{ article.description }}</textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="picture" class="form-label">Picture URL:</label>
+                        <input id="picture" type="text" name="picture" value="{{ article.picture }}"
+                               class="form-control"/>
+                    </div>
+                    <div class="d-flex justify-content-end">
+                        <button type="submit" class="btn btn-edit">Update</button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
-    <div>
-        <label for="description">Description: </label> <br/>
-        <textarea id="description" name="description" rows="5" cols="15"  required>{{ article.description }}</textarea>
-    </div>
-    <div>
-        <button type="submit">Update</button>
-    </div>
-</form>
+</div>
+{% include 'Partials/footer.twig' %}

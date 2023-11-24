@@ -14,12 +14,13 @@ class Article
     private Carbon $createdAt;
     private ?int $id;
     private ?Carbon $updatedAt;
+
     public function __construct(
-        string $title,
-        string $description,
-        string $picture,
-        string $createdAt,
-        ?int $id = null,
+        string  $title,
+        string  $description,
+        string  $picture,
+        string  $createdAt,
+        ?int    $id = null,
         ?string $updatedAt = null
     )
     {

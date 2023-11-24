@@ -1,0 +1,146 @@
+body {
+    font-family: "Comic Sans MS";
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+    background-color: #D7C2B0;
+}
+
+#app {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+button[type="submit"] {
+    padding: 8px 12px;
+    background-color: #005043;
+    color: #BC804D;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    margin-right: 20px;
+}
+
+.box {
+    background-color: rgba(0, 0, 0, 0.6);
+    padding: 20px;
+    margin: 20px;
+    border-radius: 10px;
+    color: white;
+}
+
+.wrapper {
+    background-color: rgba(0, 0, 0, 0.6);
+    padding: 20px;
+    margin: 20px;
+    border-radius: 10px;
+}
+
+.box {
+    text-align: center;
+}
+
+.box img {
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+}
+
+.box h3 {
+    margin-top: 10px;
+    color: #ffffff;
+    text-decoration: none;
+}
+
+.box h3:hover {
+    text-decoration: underline;
+}
+
+.box h3:active {
+    color: #BC804D;
+}
+
+.social-links a {
+    color: #ffffff;
+    margin-right: 5px;
+    text-decoration: none;
+    font-size: 18px;
+}
+
+.social-links a:hover {
+    text-decoration: underline;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+a:hover {
+    text-decoration: none;
+}
+
+h1 {
+    margin-top: 0;
+    text-align: center;
+}
+
+h3 {
+    margin-top: 0;
+    text-align: center;
+}
+
+h3, p {
+    margin-bottom: 20px;
+}
+
+footer {
+    background-color: #192F28;
+    color: #fff;
+    padding: 0;
+    text-align: center;
+}
+
+html {
+    height: 100%;
+}
+
+.container {
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.btn-edit {
+    background-color: #005043;
+    color: #BC804D;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    margin-right: 20px;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.btn-edit:hover {
+    background-color: white;
+    color: #005043;
+    border: 3px solid #005043;
+}
+
+.btn-delete {
+    background-color: #9D442A;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.btn-delete:hover {
+    background-color: white;
+    color: #9D442A;
+    border: 1px solid #9D442A;
+}

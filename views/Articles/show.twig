@@ -1,13 +1,32 @@
-<a href="/articles"> BACK</a>
-<h3>
-    {{ article.title }}
-</h3>
-<img src="{{ article.picture }}" alt="{{ article.title }}"/>
-<p>
-    {{  article.description }}
-</p>
-<p>
-    <small>
-        {{ article.createdAt }}
-    </small>
-</p>
+{% include 'Partials/head.twig' %}
+{% include 'Partials/navbar.twig' %}
+<div class="container">
+    <div class="row">
+        <div class="col-md">
+            <div class="box">
+                <h1>{{ article.title }}</h1>
+                <img src="{{ article.picture }}" alt="{{ article.title }}" />
+                <p>{{ article.description }}</p>
+                <div class="d-flex justify-content-between align-items-end">
+                    <div>
+                        <small>
+                            Created at: {{ article.createdAt.format('d M Y H:i') }}
+                            {% if article.updatedAt is defined and article.updatedAt is not empty %}
+                                | Last updated at: {{ article.updatedAt.format('d M Y H:i') }}
+                            {% endif %}
+                        </small>
+                    </div>
+                    <div class="d-flex">
+                        <a href="/articles/{{ article.id }}/edit" class="me-2">
+                            <button type="submit" class="btn btn-edit">Edit</button>
+                        </a>
+                        <form method="POST" action="/articles/{{ article.id }}/delete" onsubmit="return confirm('Are you sure you want to delete this article?')">
+                            <button type="submit" class="btn btn-delete" style="background-color: #9D442A; color: white;">Delete</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% include 'Partials/footer.twig' %}
