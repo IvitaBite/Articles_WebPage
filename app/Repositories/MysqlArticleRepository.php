@@ -69,6 +69,15 @@ class MysqlArticleRepository implements ArticleRepository
         $this->insert($article);
     }
 
+    public function delete(Article $article): void
+    {
+        $this->database->createQueryBuilder()
+            ->delete('articles')
+            ->where('id = :id')
+            ->setParameter('id', $article->getId())
+            ->executeQuery();
+    }
+
     private function insert(Article $article): void
     {
         $this->database->createQueryBuilder()
@@ -104,15 +113,6 @@ class MysqlArticleRepository implements ArticleRepository
                 'picture' => $article->getPicture(),
                 'updated_at' => $article->getUpdatedAt()
             ])->executeQuery();
-    }
-
-    public function delete(Article $article): void
-    {
-        $this->database->createQueryBuilder()
-            ->delete('articles')
-            ->where('id = :id')
-            ->setParameter('id', $article->getId())
-            ->executeQuery(); //try catch???
     }
 
     private function buildArticleModel(array $articleData): Article
