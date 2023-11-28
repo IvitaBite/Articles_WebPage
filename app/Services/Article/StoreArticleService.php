@@ -20,7 +20,8 @@ class StoreArticleService
     public function execute(
         string $title,
         string $description,
-        string $picture): void
+        string $picture
+    ): void
     {
         $article = new Article(
             $title,
