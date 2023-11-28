@@ -3,6 +3,7 @@
 use App\Controllers\ArticleController;
 
 return [
+    ['GET', '/', [ArticleController::class, 'index']],
     ['GET', '/articles', [ArticleController::class, 'index']],
     ['GET', '/articles/create', [ArticleController::class, 'create']],
     ['POST', '/articles', [ArticleController::class, 'store']],

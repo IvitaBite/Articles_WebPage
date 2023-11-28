@@ -11,6 +11,7 @@ use Twig\Loader\FilesystemLoader;
 use Twig\Environment;
 use Dotenv\Dotenv;
 use Twig\Extension\DebugExtension;
+use DI\ContainerBuilder;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
@@ -36,6 +37,13 @@ $twig->addExtension(new DebugExtension());
 $dotenv = Dotenv::createImmutable(__DIR__ . '/../');
 $dotenv->load();
 
+$config = require_once __DIR__ . '/../config/config.php';
+
+$containerBuilder = new ContainerBuilder();
+$containerBuilder->addDefinitions($config);
+
+$container = $containerBuilder->build();
+
 $routeInfo = Router::dispatch();
 
 switch ($routeInfo[0]) {
@@ -47,12 +55,12 @@ switch ($routeInfo[0]) {
         // ... 405 Method Not Allowed
         break;
     case FastRoute\Dispatcher::FOUND:
-
+        [$class, $method] = $routeInfo[1];
         $vars = $routeInfo[2];
 
-        [$controller, $method] = $routeInfo[1];
+        $controller = $container->get($class);
 
-        $response = (new $controller)->{$method}(...array_values($vars));
+        $response = $controller->{$method}($vars);
 
         switch (true) {
             case $response instanceof ViewResponse:

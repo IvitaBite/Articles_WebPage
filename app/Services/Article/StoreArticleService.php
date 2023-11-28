@@ -5,7 +5,6 @@ declare(strict_types=1);
 
 namespace App\Services\Article;
 
-use App\Repositories\MysqlArticleRepository;
 use App\Repositories\ArticleRepository;
 use App\Models\Article;
 
@@ -13,12 +12,15 @@ class StoreArticleService
 {
     private ArticleRepository $articleRepository;
 
-    public function __construct()
+    public function __construct(ArticleRepository $articleRepository)
     {
-        $this->articleRepository = new MysqlArticleRepository();
+        $this->articleRepository = $articleRepository;
     }
-    //DTO - data transfer object => CreateArticleRequest -? $_POST,/ $_GET => ..execute(CreateArticleRequest $request)
-    public function execute(string $title, string $description, string $picture): void
+
+    public function execute(
+        string $title,
+        string $description,
+        string $picture): void
     {
         $article = new Article(
             $title,

@@ -11,7 +11,7 @@ class Article
     private string $title;
     private string $description;
     private string $picture;
-    private Carbon $createdAt;
+    private ?Carbon $createdAt;
     private ?int $id;
     private ?Carbon $updatedAt;
 
@@ -19,14 +19,14 @@ class Article
         string  $title,
         string  $description,
         string  $picture,
-        ?string  $createdAt = null,
+        ?string $createdAt = null,
         ?int    $id = null,
         ?string $updatedAt = null
     )
     {
         $this->title = $title;
         $this->description = $description;
-        $this->picture = $picture;
+        $this->picture = $picture ? $picture : 'https://random.imagecdn.app/500/150';
         $this->createdAt = $createdAt == null ? Carbon::now() : new Carbon($createdAt);
         $this->id = $id;
         $this->updatedAt = $updatedAt ? new Carbon($updatedAt) : null;

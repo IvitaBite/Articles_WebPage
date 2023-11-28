@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use App\Repositories\ArticleRepository;
-use App\Repositories\MysqlArticleRepository;
 use App\Response\RedirectResponse;
 use App\Response\Response;
 use App\Response\ViewResponse;
@@ -20,27 +19,44 @@ use Respect\Validation\Validator as v;
 class ArticleController
 {
     private ArticleRepository $articleRepository;
+    private IndexArticleService $indexArticleService;
+    private ShowArticleService $showArticleService;
+    private StoreArticleService $storeArticleService;
+    private UpdateArticleService $updateArticleService;
+    private DeleteArticleService $deleteArticleService;
 
-    public function __construct()
+    public function __construct(
+        ArticleRepository    $articleRepository,
+        IndexArticleService  $indexArticleService,
+        ShowArticleService   $showArticleService,
+        StoreArticleService  $storeArticleService,
+        UpdateArticleService $updateArticleService,
+        DeleteArticleService $deleteArticleService
+    )
     {
-        $this->articleRepository = new MysqlArticleRepository();
+        $this->articleRepository = $articleRepository;
+        $this->indexArticleService = $indexArticleService;
+        $this->showArticleService = $showArticleService;
+        $this->storeArticleService = $storeArticleService;
+        $this->updateArticleService = $updateArticleService;
+        $this->deleteArticleService = $deleteArticleService;
     }
 
     public function index(): Response
     {
-        $service = new IndexArticleService();
-        $articles = $service->execute();
+        $articles = $this->indexArticleService->execute();
 
         return new ViewResponse('Articles/index', [
             'articles' => $articles
         ]);
     }
 
-    public function show(string $id): Response
+    public function show(array $vars): Response
     {
+        $id = $vars['id'] ?? null;
+
         try {
-            $service = new ShowArticleService();
-            $article = $service->execute($id);
+            $article = $this->showArticleService->execute($id);
 
             return new ViewResponse('Articles/show', [
                 'article' => $article
@@ -61,7 +77,7 @@ class ArticleController
     {
         $title = $_POST['title'];
         $description = $_POST['description'];
-        $picture = !empty($_POST['picture']) ? $_POST['picture'] : 'https://random.imagecdn.app/500/150';
+        $picture = $_POST['picture'];
 
         $titleValidator = v::notEmpty()
             ->length(1, 255)
@@ -98,19 +114,19 @@ class ArticleController
             return new RedirectResponse('/articles/create');
         }
 
-        $service = new StoreArticleService();
-        $service->execute($title, $description, $picture);
+        $this->storeArticleService->execute($title, $description, $picture);
 
         $_SESSION['flush']['success'][] = 'Article created successfully!';
 
         return new RedirectResponse('/articles');
     }
 
-    public function edit(string $id): Response
+    public function edit(array $vars): Response
     {
+        $id = $vars['id'] ?? null;
+
         try {
-            $service = new ShowArticleService();
-            $article = $service->execute($id);
+            $article = $this->showArticleService->execute($id);
 
             $_SESSION['flush']['success'][] = 'Article edited successfully!';
 
@@ -124,8 +140,10 @@ class ArticleController
         }
     }
 
-    public function update(string $id): Response
+    public function update(array $vars): Response
     {
+        $id = $vars['id'] ?? null;
+
         $article = $this->articleRepository->getById($id);
 
         if (!$article) {
@@ -135,7 +153,7 @@ class ArticleController
 
         $title = $_POST['title'];
         $description = $_POST['description'];
-        $picture = !empty($_POST['picture']) ? $_POST['picture'] : 'https://random.imagecdn.app/500/150';
+        $picture = $_POST['picture'];
 
         $titleValidator = v::notEmpty()
             ->length(1, 255)
@@ -172,22 +190,27 @@ class ArticleController
             return new RedirectResponse('/articles/create');
         }
 
-        $service = new UpdateArticleService();
-        $service->execute($id, $title, $description, $picture);
+        $this->updateArticleService->execute($id, $title, $description, $picture);
 
         $_SESSION['flush']['success'][] = 'Article updated successfully!';
 
         return new RedirectResponse('/articles/' . $id);
     }
 
-    public function delete(string $id): Response
+    public function delete(array $vars): Response
     {
-        $service = new DeleteArticleService();
-        $service->execute($id);
+        $id = $vars['id'] ?? null;
 
-        $_SESSION['flush']['success'][] = 'Article deleted successfully!';
+        try {
+            $this->deleteArticleService->execute($id);
+            $_SESSION['flush']['success'][] = 'Article deleted successfully!';
 
-        return new RedirectResponse('/articles');
+            return new RedirectResponse('/articles');
+
+        } catch (\Exception $e) {
+            $_SESSION['flush']['error'][] = $e->getMessage();
+            return new RedirectResponse('/articles');
+        }
     }
 
     private function handleValidationException(NestedValidationException $exception): void
