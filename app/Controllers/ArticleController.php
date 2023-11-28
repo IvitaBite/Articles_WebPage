@@ -4,68 +4,52 @@ declare(strict_types=1);
 
 namespace App\Controllers;
 
-use App\Collections\ArticleCollection;
-use App\Models\Article;
+use App\Repositories\ArticleRepository;
+use App\Repositories\MysqlArticleRepository;
 use App\Response\RedirectResponse;
 use App\Response\Response;
 use App\Response\ViewResponse;
-use Carbon\Carbon;
+use App\Services\Article\DeleteArticleService;
+use App\Services\Article\IndexArticleService;
+use App\Services\Article\ShowArticleService;
+use App\Services\Article\StoreArticleService;
+use App\Services\Article\UpdateArticleService;
 use Respect\Validation\Exceptions\NestedValidationException;
 use Respect\Validation\Validator as v;
 
-class ArticleController extends DatabaseController
+class ArticleController
 {
+    private ArticleRepository $articleRepository;
+
+    public function __construct()
+    {
+        $this->articleRepository = new MysqlArticleRepository();
+    }
+
     public function index(): Response
     {
-        $articles = $this->database->createQueryBuilder()
-            ->select('*')
-            ->from('articles')
-            ->fetchAllAssociative();
-
-        $articlesCollection = new ArticleCollection();
-
-        foreach ($articles as $article) {
-            $articlesCollection->add(new Article(
-                $article['title'],
-                $article['description'],
-                $article['picture'],
-                $article['created_at'],
-                (int)$article['id'],
-                $article['updated_at'],
-            ));
-        }
+        $service = new IndexArticleService();
+        $articles = $service->execute();
 
         return new ViewResponse('Articles/index', [
-            'articles' => $articlesCollection->getAllArticles()
+            'articles' => $articles
         ]);
     }
 
     public function show(string $id): Response
     {
-        $articleData = $this->database->createQueryBuilder()
-            ->select('*')
-            ->from('articles')
-            ->where('id = :id')
-            ->setParameter('id', $id)
-            ->fetchAssociative();
+        try {
+            $service = new ShowArticleService();
+            $article = $service->execute($id);
 
-        if (!$articleData) {
-            $_SESSION['flush']['error'][] = 'Article not found.';
+            return new ViewResponse('Articles/show', [
+                'article' => $article
+            ]);
+
+        } catch (\Exception $e) {
+            $_SESSION['flush']['error'][] = $e->getMessage();
             return new RedirectResponse('/articles');
         }
-
-        $article = new Article(
-            $articleData['title'],
-            $articleData['description'],
-            $articleData['picture'],
-            $articleData['created_at'],
-            (int)$articleData['id'],
-            $articleData['updated_at'],
-        );
-
-        return new ViewResponse('Articles/show', [
-            'article' => $article
-        ]);
     }
 
     public function create(): Response
@@ -114,21 +98,8 @@ class ArticleController extends DatabaseController
             return new RedirectResponse('/articles/create');
         }
 
-        $this->database->createQueryBuilder()
-            ->insert('articles')
-            ->values(
-                [
-                    'title' => ':title',
-                    'description' => ':description',
-                    'picture' => ':picture',
-                    'created_at' => ':created_at'
-                ]
-            )->setParameters([
-                'title' => $title,
-                'description' => $description,
-                'picture' => $picture,
-                'created_at' => Carbon::now()
-            ])->executeQuery();
+        $service = new StoreArticleService();
+        $service->execute($title, $description, $picture);
 
         $_SESSION['flush']['success'][] = 'Article created successfully!';
 
@@ -137,44 +108,27 @@ class ArticleController extends DatabaseController
 
     public function edit(string $id): Response
     {
-        $articleData = $this->database->createQueryBuilder()
-            ->select('*')
-            ->from('articles')
-            ->where('id = :id')
-            ->setParameter('id', $id)
-            ->fetchAssociative();
+        try {
+            $service = new ShowArticleService();
+            $article = $service->execute($id);
 
-        if (!$articleData) {
-            $_SESSION['flush']['error'][] = 'Article not found.';
+            $_SESSION['flush']['success'][] = 'Article edited successfully!';
+
+            return new ViewResponse('Articles/edit', [
+                'article' => $article
+            ]);
+
+        } catch (\Exception $e) {
+            $_SESSION['flush']['error'][] = $e->getMessage();
             return new RedirectResponse('/articles');
         }
-
-        $article = new Article(
-            $articleData['title'],
-            $articleData['description'],
-            $articleData['picture'],
-            $articleData['created_at'],
-            (int)$articleData['id'],
-            $articleData['updated_at'],
-        );
-
-        $_SESSION['flush']['success'][] = 'Article edited successfully!';
-
-        return new ViewResponse('Articles/edit', [
-            'article' => $article
-        ]);
     }
 
     public function update(string $id): Response
     {
-        $articleData = $this->database->createQueryBuilder()
-            ->select('*')
-            ->from('articles')
-            ->where('id = :id')
-            ->setParameter('id', $id)
-            ->fetchAssociative();
+        $article = $this->articleRepository->getById($id);
 
-        if (!$articleData) {
+        if (!$article) {
             $_SESSION['flush']['error'][] = 'Article not found.';
             return new RedirectResponse('/articles');
         }
@@ -218,33 +172,18 @@ class ArticleController extends DatabaseController
             return new RedirectResponse('/articles/create');
         }
 
-        $this->database->createQueryBuilder()
-            ->update('articles')
-            ->set('title', ':title')
-            ->set('description', ':description')
-            ->set('picture', ':picture')
-            ->set('updated_at', ':updated_at')
-            ->where('id = :id')
-            ->setParameters([
-                'id' => $id,
-                'title' => $title,
-                'description' => $description,
-                'picture' => $picture,
-                'updated_at' => Carbon::now()
-            ])->executeQuery();
+        $service = new UpdateArticleService();
+        $service->execute($id, $title, $description, $picture);
 
         $_SESSION['flush']['success'][] = 'Article updated successfully!';
-        var_dump($_SESSION['flush']);
+
         return new RedirectResponse('/articles/' . $id);
     }
 
     public function delete(string $id): Response
     {
-        $this->database->createQueryBuilder()
-            ->delete('articles')
-            ->where('id = :id')
-            ->setParameter('id', $id)
-            ->executeQuery();
+        $service = new DeleteArticleService();
+        $service->execute($id);
 
         $_SESSION['flush']['success'][] = 'Article deleted successfully!';
 
@@ -254,7 +193,6 @@ class ArticleController extends DatabaseController
     private function handleValidationException(NestedValidationException $exception): void
     {
         $messages = $exception->getMessages();
-        var_dump($messages);
         foreach ($messages as $validator => $message) {
             $_SESSION['flush']['error'][] = $message;
         }

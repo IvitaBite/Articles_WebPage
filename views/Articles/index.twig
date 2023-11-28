@@ -2,12 +2,12 @@
 {% include 'Partials/navbar.twig' %}
 <div class="container">
     <div class="row">
-        {% for article in articles %}
+        {% for article in articles.getAllArticles() %}
             <div class="col-md-6">
                 <div class="box">
-                    <a href="/articles/{{ article.id }}">
-                        <img src="{{ article.picture }}" alt="{{ article.title }}"/>
-                        <h3>{{ article.title }}</h3>
+                    <a href="/articles/{{ article.getId() }}">
+                        <img src="{{ article.getPicture() }}" alt="{{ article.getTitle() }}"/>
+                        <h3>{{ article.getTitle() }}</h3>
                     </a>
                 </div>
             </div>

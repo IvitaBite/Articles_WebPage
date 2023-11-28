@@ -13,6 +13,7 @@
         "twig/twig": "^3.0",
         "twbs/bootstrap": "5.3.2",
         "doctrine/dbal": "^3.7",
-        "respect/validation": "^2.2"
+        "respect/validation": "^2.2",
+        "php-di/php-di": "^7.0"
     }
 }
